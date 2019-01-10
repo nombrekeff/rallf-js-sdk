@@ -1,7 +1,7 @@
 {
   "name": "rallf-js-sdk",
-  "version": "0.4.3",
-  "description": "Toolset to create Tasks for RALLF based on selenium-webdrver",
+  "version": "0.6.0",
+  "description": "Toolset to create Tasks for RALLF",
   "main": "index.js",
   "author": "RobotUnion",
   "license": "MIT",
@@ -9,33 +9,51 @@
     "type": "github",
     "url": "https://github.com/RobotUnion/rallf-js-sdk"
   },
+  "keywords": [
+    "Automation",
+    "Bots",
+    "Rallf",
+    "RobotUnion",
+    "Selenium",
+    "sdk"
+  ],
   "engines": {
     "node": ">= 8.9.0"
   },
   "bin": {
     "rallf-runner": "bin/runner.js",
-    "rallf-init": "bin/init.js"
+    "rallf-init": "bin/init.js",
+    "rallf-pkg": "bin/packager.js"
   },
   "scripts": {
     "test": "jest",
     "test:w": "jest --watchAll",
+    "lint": "eslint ./index.js ./src/**/*.js --quiet",
     "init": "node ./bin/init.js",
     "npm:publish": "npm version patch && npm publish",
     "teste2e": "node ./.tests/e2etest.js"
   },
   "dependencies": {
+    "adm-zip": "^0.4.11",
     "cli-color": "^1.2.0",
     "commander": "^2.19.0",
     "fs-extra": "^7.0.0",
-    "json-rpiecy": "^0.1.0",
+    "json-rpiecy": "^0.2.0",
     "jsonschema": "^1.2.4",
+    "please-update": "0.0.1",
     "recursive-copy": "^2.0.9",
     "selenium-webdriver": "^3.6.0",
     "webdriverio": "^4.14.0",
     "yargs": "^12.0.2"
   },
   "devDependencies": {
-    "pre-commit": "^1.2.2",
+    "eslint": "^5.9.0",
+    "eslint-config-standard": "^12.0.0",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-node": "^8.0.0",
+    "eslint-plugin-promise": "^4.0.1",
+    "eslint-plugin-standard": "^4.0.0",
+    "husky": "^1.2.0",
     "jest": "^23.6.0"
   },
   "jest": {
@@ -45,7 +63,9 @@
       "/tests"
     ]
   },
-  "pre-commit": [
-    "test"
-  ]
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run lint && npm test"
+    }
+  }
 }

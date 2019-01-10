@@ -1,8 +1,11 @@
 'use strict';
-const { Builder, WebDriver } = require('selenium-webdriver')
+const {
+  Builder,
+  WebDriver
+} = require('selenium-webdriver');
 const firefox = require('selenium-webdriver/firefox');
 const chrome = require('selenium-webdriver/chrome');
-const wdio = require("webdriverio");
+const wdio = require('webdriverio');
 
 
 /**
@@ -10,8 +13,8 @@ const wdio = require("webdriverio");
  */
 class Devices {
   constructor() {
-    this.devices = /** @type {any][]} */ ([]);
-    this._instances = /** @type {WebDriver[]} */ ([]);
+    this.devices = /** @type {any][]} */ [];
+    this._instances = /** @type {WebDriver[]} */ [];
   }
 
   /**
@@ -24,77 +27,84 @@ class Devices {
     try {
       let device = this.devices[device_name];
 
+      // Quick hack to support already existing devices
+      // New devices should set a .name proerty instead of .device
+      if (!device.name) {
+        device.name = device.device;
+      }
+
       // console.log("Getting device: ", device);
 
       if (!device) {
-        throw new Error('Device not found: ' + device_name + ` - robot does not have that devices defined`);
+        throw new Error('Device not found: ' + device_name + ' - robot does not have that devices defined');
       }
       if (device.kind === 'driver') {
         return new Promise(async (resolve, reject) => {
-          let builder = new Builder().forBrowser(device.device);
-          let options = await this._getOptions(device, device_options);
-
+          let builder = new Builder().forBrowser(device.name);
+          let options = this._getOptions(device, device_options);
           if (device.name === 'firefox') {
-            options.useGeckoDriver(device.driver);
-            options.setBinary(device.bin);
             builder.setFirefoxOptions(options);
-          }
-          else if (device.name === 'chrome') {
-            options.setProperty("webdriver.chrome.driver", device.driver);
-            opts.setChromeBinaryPath(device.bin);
+          } else if (device.name === 'chrome') {
             builder.setChromeOptions(options);
           }
 
           let deviceInstance = await builder.build();
-          this._instances.push({ device_name: device_name, device: deviceInstance, options: device_options });
+          this._instances.push({
+            device_name: device_name,
+            device: deviceInstance,
+            options: device_options
+          });
 
           resolve(deviceInstance);
         });
-      }
-      else if (device.kind === 'remote') {
+      } else if (device.kind === 'remote') {
         // console.log("Is remote");
         const opts = {
           port: device.port,
           desiredCapabilities: {
-            platformName: device.device,
+            platformName: device.name,
             platformVersion: device.version,
             deviceName: 'keff',
             appPackage: device.app_package,
             appActivity: device.app_activity,
-            automationName: "UiAutomator2",
+            automationName: 'UiAutomator2',
             host: device.host,
             port: device.port
           }
         };
 
         const client = wdio.remote(opts).init();
+
         return client;
       }
     } catch (error) {
       throw new Error(error);
     }
+
+    return null;
   }
 
   build(device_name, device_options) {
     let device = this.devices[device_name];
-    return function () {
-      console.log("Is remote");
+
+    return function buildFactory() {
+      console.log('Is remote');
       const opts = {
         port: device.port,
         desiredCapabilities: {
-          platformName: device.device,
+          platformName: device.name,
           platformVersion: device.version,
           deviceName: 'keff',
           appPackage: device.app_package,
           appActivity: device.app_activity,
-          automationName: "UiAutomator2",
+          automationName: 'UiAutomator2',
           host: device.host,
           port: device.port
         }
       };
 
       return wdio.remote(opts).init();
-    }
+    };
   }
 
 
@@ -102,8 +112,8 @@ class Devices {
    * Close a device
    * @param {WebDriver} device 
    */
-  async quit(device) {
-    return device ? await device.close() : null;
+  quit(device) {
+    return device ? device.close() : null;
   }
 
   /**
@@ -112,41 +122,54 @@ class Devices {
   async quitAll() {
     if (this._instances.length) {
       let promises = [];
-      for (let i = 0; i < this._instances.length; i++) {
-        promises.push(this._instances[i].device.quit());
+      for (let index = 0; index < this._instances.length; index++) {
+        promises.push(this._instances[index].device.quit());
       }
-      await Promise.all(promises).then((res) => res).catch((err) => { });
+      await Promise.all(promises).then((res) => res);
     }
   }
 
-  async _getOptions(device, device_options = {}) {
-    let opts;
-    let deviceName = device.name;
+  _getOptions(device, device_options = {}) {
+    let opts = {};
+    let deviceName = device.name || device.device;
 
     if (deviceName === 'firefox') {
       opts = new firefox.Options();
-    }
-    else if (deviceName === 'chrome') {
+      if (device.driver) {
+        // opts.useGeckoDriver(true);
+        // opts.addArguments('webdriver.firefox.driver=' + device.driver);
+      }
+      if (device.bin) {
+        opts.setBinary(device.bin);
+      }
+
+    } else if (deviceName === 'chrome') {
       opts = new chrome.Options();
+      if (device.driver) opts.setProperty('webdriver.chrome.driver', device.driver);
+      if (device.bin) opts.setChromeBinaryPath(device.bin);
     }
 
+
     if (device.headless === true) {
-      opts = opts.headless();
+      opts.headless();
     }
 
     if (device.screen) {
-      opts = opts.windowSize(device.screen);
+      opts.windowSize(device.screen);
     }
 
     if (device_options.profile && deviceName === 'firefox') {
-      console.log("Setting profile", device_options.profile);
       let profile = new firefox.Profile(device_options.profile);
-      opts = opts.setProfile(profile);
+      opts.setProfile(profile);
     }
     if (device_options.profile && deviceName === 'chrome') {
       opts.addArgument(`user-data-dir=${device_options.profile}`);
     }
 
+    // console.log('opts', opts)
+
+    opts.device_name = deviceName;
+    
     return opts;
   }
 
@@ -156,4 +179,3 @@ class Devices {
 }
 
 module.exports = Devices;
-

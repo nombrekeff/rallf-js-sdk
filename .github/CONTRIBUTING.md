@@ -7,7 +7,7 @@ Please note we have a [code of conduct](https://github.com/RobotUnion/rallf-js-s
 
 ## Pull Request Process
 1. Ensure any install or build dependencies are removed before the end of the layer when doing a build.
-2. Update the README.md with details of changes, this includes changes to the init and runner commands,to the the package.json _(if publishing is required)_, and the README.md to the new version that this Pull Request would represent. The versioning scheme we use is [SemVer](http://semver.org/).
+2. Update the README.md and the wiki with details of changes, this includes changes to the init and runner commands, to the package.json _(if publishing is required)_, and the README.md to the new version that this Pull Request would represent. The versioning scheme we use is [SemVer](http://semver.org/).
 4. Please make sure all test pass before pushing.
 
 ## Publishing to npm

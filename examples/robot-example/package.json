@@ -1,0 +1,10 @@
+{
+  "name": "basic-example",
+  "main": "src/main.js",
+  "scripts": {
+    
+  },
+  "dependencies": {
+    "rallf-js-sdk": "^0.4.6"
+  }
+}

@@ -2,7 +2,7 @@ const { Runner } = require('../src/lib');
 const { Task } = require('../src/integration');
 const fs = require('fs-extra');
 
-jest.setTimeout(60e3);
+jest.setTimeout(120e3);
 
 let cwd = process.cwd();
 

@@ -2,7 +2,7 @@
 /.robot.dev
 /node_modules
 /doc
-/out
+/output
 /tests
 /rr.log
 # /example

@@ -1,4 +1,5 @@
 const rallf = require('../../../');
+// const rallf = require('rallf-js-sdk'); 
 
 class BasicExample extends rallf.Task {
   constructor() {
@@ -13,7 +14,7 @@ class BasicExample extends rallf.Task {
   }
 
   async start(input) {
-    this.logger.debug('BasicExample started');
+    this.logger.debug(this.fqtn + ' started');
     return 'started';
   }
 
@@ -27,12 +28,3 @@ class BasicExample extends rallf.Task {
   }
 }
 module.exports = BasicExample;
-// {
-//   "jsonrpc": "2.0",
-//   "method": "event",
-//   "params": {
-//     "event": "warmup:end",
-//     "data": {}
-//   },
-//   "id": "bt5mzosz"
-// }

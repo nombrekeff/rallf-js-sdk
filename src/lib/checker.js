@@ -8,6 +8,7 @@ const schemes = require('./schemes');
 const Task = require('../integration/task');
 
 module.exports = {
+
   /**
    * 
    * @param {string} task_path 
@@ -15,7 +16,7 @@ module.exports = {
   isValidTaskProject(task_path, manifest) {
     if (typeof task_path !== 'string') {
       return {
-        error: `ERROR: "task_path" must be a string`
+        error: 'ERROR: "task_path" must be a string'
       };
       // throw new Error(`ERROR: "task_path" must be a string`);
     }
@@ -44,12 +45,13 @@ module.exports = {
    * @param {any} manifest 
    */
   validManifest(manifest) {
-    const v = new Validator();
+    const vali = new Validator();
     const instance = manifest;
     const schema = schemes.manifest;
-    let validation = v.validate(instance, schema);
+    let validation = vali.validate(instance, schema);
 
     if (validation.errors) return { valid: false, errors: validation.errors };
+
     return true;
   },
 
@@ -62,9 +64,9 @@ module.exports = {
 
   hasMethod(object, method_name) {
     return (
-      object
-      && method_name in object
-      && typeof object[method_name] === 'function'
+      object &&
+      method_name in object &&
+      typeof object[method_name] === 'function'
     );
   }
 

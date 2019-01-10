@@ -16,8 +16,9 @@ class AbstractLogger {
     this.LOG_SEVERITY_INFO = 6;
     this.LOG_SEVERITY_DEBUG = 7;
     this.task_name = null;
+    this.task = null;
   }
-  
+
 
   /**
    * @param string message
@@ -25,7 +26,7 @@ class AbstractLogger {
    * @param int severity , standard RFC3164 code (https://tools.ietf.org/html/rfc3164)
    * @param string channel
    */
-  log(message, data = null, severity = 7, channel = "") {
+  log(message, data = null, severity = 7, channel = '') {
     let log = {
       time: Date.now(),
       severity,
@@ -33,17 +34,21 @@ class AbstractLogger {
       message,
       data
     };
+
+    if (this.task) {
+      log.message = this._replaceShortcuts(log.message, this.task);
+    }
+
     this.notifier.notify(log);
   }
 
-  capture(device, severity = 7, channel = "") {
+  capture(device) {
     return new Promise((resolve, reject) => {
       device.takeScreenshot((error, capture) => {
         if (error) {
           this.error('error', { error });
           reject({ error });
-        }
-        else {
+        } else {
           this.debug('capture', { capture });
           resolve({ capture });
         }
@@ -56,7 +61,7 @@ class AbstractLogger {
    * @param null $data
    * @param string $channel
    */
-  debug(message, data = null, channel = "") {
+  debug(message, data = null, channel = '') {
     this.log(message, data, this.LOG_SEVERITY_DEBUG, channel);
   }
 
@@ -65,7 +70,7 @@ class AbstractLogger {
    * @param null $data
    * @param string $channel
    */
-  warning(message, data = null, channel = "") {
+  warning(message, data = null, channel = '') {
     this.log(message, data, this.LOG_SEVERITY_WARNING, channel);
   }
 
@@ -74,7 +79,7 @@ class AbstractLogger {
    * @param null $data
    * @param string $channel
    */
-  alert(message, data = null, channel = "") {
+  alert(message, data = null, channel = '') {
     this.log(message, data, this.LOG_SEVERITY_ALERT, channel);
   }
 
@@ -83,7 +88,7 @@ class AbstractLogger {
    * @param null $data
    * @param string $channel
    */
-  emergency(message, data = null, channel = "") {
+  emergency(message, data = null, channel = '') {
     this.log(message, data, this.LOG_SEVERITY_EMERGENCY, channel);
   }
 
@@ -92,7 +97,7 @@ class AbstractLogger {
    * @param null $data
    * @param string $channel
    */
-  critical(message, data = null, channel = "") {
+  critical(message, data = null, channel = '') {
     this.log(message, data, this.LOG_SEVERITY_CRITICAL, channel);
   }
 
@@ -101,7 +106,7 @@ class AbstractLogger {
    * @param null $data
    * @param string $channel
    */
-  error(message, data = null, channel = "") {
+  error(message, data = null, channel = '') {
     this.log(message, data, this.LOG_SEVERITY_ERROR, channel);
   }
 
@@ -110,8 +115,24 @@ class AbstractLogger {
    * @param null $data
    * @param string $channel
    */
-  info(message, data = null, channel = "") {
+  info(message, data = null, channel = '') {
     this.log(message, data, this.LOG_SEVERITY_INFO, channel);
+  }
+
+
+  /**
+   * @param {string} message 
+   * @param {rallf.Task} task 
+   */
+  _replaceShortcuts(message, task) {
+    // @ could be the fqtn of the task
+    message = message.replace('@', task.fqtn);
+    // $ could be the name of the task
+    message = message.replace('$', task.name);
+    // & could be some other property
+    message = message.replace('%', task.robot.id);
+    
+    return message;
   }
 }
 

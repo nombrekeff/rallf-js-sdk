@@ -2,7 +2,7 @@
   "name": "<name>",
   "main": "src/main.js",
   "scripts": {
-    "start": "rallf-runner run -f getTitle"
+    "start": "rallf-runner run -f start"
   },
   "dependencies": {
     "rallf-js-sdk": "^<sdk_version>"

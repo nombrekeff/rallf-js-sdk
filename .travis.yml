@@ -1,0 +1,9 @@
+language: node_js
+node_js:
+  - node
+os: linux
+dist: xenial
+
+branches:
+  - master
+  - deploy

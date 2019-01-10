@@ -34,10 +34,4 @@ describe('jsonrpc should', () => {
     expect(response.result).not.toEqual({});
   });
 
-
-  it('should wait for response and rejects', () => {
-    let response = jsonrpc.waitFor('test');
-    expect(response).rejects.toBeTruthy();
-  });
-
 });

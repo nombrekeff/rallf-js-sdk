@@ -3,23 +3,23 @@
 const Logger = require('./logger');
 const Devices = require('./devices');
 const Robot = require('./robot');
-const PubSub = require('../lib/pubsub');
+const events = require('../lib/events');
 
 /**
  * This is the class the user will need to extend from to create a Task
  */
-class Task extends PubSub {
+class Task extends events.RallfEventEmitter {
   constructor() {
     super();
 
-    this.logger = /** @type {Logger} */ (new Logger(process, true));
-    this.devices = /** @type {Devices} */ (new Devices());
-    this.robot =  /** @param {Robot} */ (new Robot());
-    this._persisting = (false);
-    this._manifest = (null);
-    this._warmup_done = (false);
-    this.id = (null);
-    this.type = ('task');
+    this.logger = /** @type {Logger} */ new Logger(process, true, this);
+    this.devices = /** @type {Devices} */ new Devices();
+    this.robot = /** @param {Robot} */ new Robot();
+    this._persisting = false;
+    this._manifest = null;
+    this._warmup_done = false;
+    this.id = null;
+    this.type = 'task';
   }
 
   get home() {
@@ -38,8 +38,9 @@ class Task extends PubSub {
   _hasDoneWarmup(val) {
     if (val) {
       this._warmup_done = val;
-    }
-    else return this._warmup_done;
+    } else return this._warmup_done;
+    
+    return null;
   }
 
   /**
@@ -55,6 +56,14 @@ class Task extends PubSub {
   /**
    * @return {String|null}
    */
+  get name() {
+    return this._manifest ? this._manifest.name : null;
+  }
+
+  /**
+   * @deprecated in favor of `Task.name`
+   * @return {String|null}
+   */
   getName() {
     return this._manifest ? this._manifest.name : null;
   }
@@ -62,10 +71,24 @@ class Task extends PubSub {
   /**
    * @return {String|null}
    */
-  getVersion() {
+  get fqtn() {
+    return this._manifest ? this._manifest.fqtn : null;
+  }
+
+  /**
+   * @return {String|null}
+   */
+  get version() {
     return this._manifest ? this._manifest.version : null;
   }
 
+  /**
+   * @deprecated in favor of `Task.version`
+   * @return {String|null}
+   */
+  getVersion() {
+    return this._manifest ? this._manifest.version : null;
+  }
 }
 
 module.exports = Task;

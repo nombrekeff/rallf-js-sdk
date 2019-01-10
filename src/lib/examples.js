@@ -1,1 +1,2 @@
-module.exports = { skills: ` { skills: { [skill_name]: [...devices] } } ` };
+'use strict';
+module.exports = { skills: ' { skills: { [skill_name]: [...devices] } } ' };

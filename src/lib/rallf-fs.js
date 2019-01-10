@@ -1,3 +1,4 @@
+'use strict';
 const fs = require('fs-extra');
 const path = require('path');
 
@@ -52,7 +53,8 @@ class RallfFS {
     }
 
     filepath = path.join(this._cwd, filepath);
-    return fs.ensureFileSync(filepath);
+    
+return fs.ensureFileSync(filepath);
   }
 
   /**
@@ -65,7 +67,8 @@ class RallfFS {
     }
 
     dirpath = path.join(this._cwd, dirpath);
-    return fs.ensureDirSync(dirpath);
+    
+return fs.ensureDirSync(dirpath);
   }
 
   /**
@@ -94,7 +97,8 @@ class RallfFS {
     }
 
     filepath = path.join(this._cwd, filepath);
-    return fs.readJsonSync(filepath, options);
+    
+return fs.readJsonSync(filepath, options);
   }
 
   /**
@@ -104,7 +108,8 @@ class RallfFS {
    */
   existsSync(filepath) {
     filepath = path.join(this._cwd, filepath);
-    return fs.existsSync(filepath);
+    
+return fs.existsSync(filepath);
   }
 
   /**
