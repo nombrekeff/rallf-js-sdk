@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+
 'use strict';
 
 const clc = require('cli-color');
@@ -23,11 +24,12 @@ function goAhead() {
   const rallfRunner = new Runner();
 
   let cwd = process.cwd();
+
   function color(colorEnabled, str, colorName) {
     if (colorEnabled) {
       try {
         str = clc[colorName](str);
-      } catch (error) { }
+      } catch (error) {}
     }
 
     return str;
@@ -136,16 +138,22 @@ function goAhead() {
                 onFinish(request, cmd, task);
               });
             } else if (
-              request.method === 'run-method' &&
-              request.params &&
-              request.params.routine
+              request.method === 'delegate' &&
+              request.params
             ) {
               let method = request.params.routine;
               let args = request.params.args || {};
 
               now.timeFnExecutionAsync(() => task[method](args))
                 .then((res) => {
-                  let response = rpiecy.createResponse(request.id, { timed: res.timed, info: { method, args, result: res.return } }, null);
+                  let response = rpiecy.createResponse(request.id, {
+                    timed: res.timed,
+                    info: {
+                      method,
+                      args,
+                      result: res.return
+                    }
+                  }, null);
                   response.output();
                 })
                 .catch((err) => {
@@ -181,13 +189,12 @@ function goAhead() {
 
       // On any event
       task.onAny = (evt, data) => {
-        // logging.log('info', `received event: ${evt}`, data);
         let request = rpiecy.createRequest('event', {
-          event: evt,
-          data: data || {}
+          name: evt,
+          content: data || {},
+          context: task.fqtn
         }, rpiecy.id());
         request.output();
-        // logging.log('info', `Send request: ${request.toString()}`);
       };
 
       process.on('SIGINT', async () => {

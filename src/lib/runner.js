@@ -2,7 +2,10 @@
 
 const fs = require('fs-extra');
 const path = require('path');
-const { Task, Robot } = require('../integration');
+const {
+  Task,
+  Robot
+} = require('../integration');
 const checker = require('./checker');
 const examples = require('./examples');
 const now = require('./now');
@@ -69,7 +72,13 @@ class Runner {
     taskInstance.devices._setDevices(devices || []);
     taskInstance.robot.skills = skills;
 
-    this._taskMap[taskInstance.name] = { instance: taskInstance, robot, manifest, path: task_path, mocks_folder };
+    this._taskMap[taskInstance.name] = {
+      instance: taskInstance,
+      robot,
+      manifest,
+      path: task_path,
+      mocks_folder
+    };
 
     return taskInstance;
   }
@@ -147,7 +156,9 @@ class Runner {
   getManifest(task_path) {
     let validTask = checker.isValidTaskProject(task_path);
     if (validTask.error) {
-      return { error: validTask.error };
+      return {
+        error: validTask.error
+      };
     }
 
     let manifestPath = path.join(task_path, 'config', 'manifest.json');
@@ -156,7 +167,9 @@ class Runner {
     let validManifest = checker.validManifest(manifest);
     if (validManifest.errors) {
       for (let error of validManifest.errors) {
-        return { error: `Task ${task_path} manifest is invalid: \n ${error.stack}` };
+        return {
+          error: `Task ${task_path} manifest is invalid: \n ${error.stack}`
+        };
       }
     }
 
@@ -189,22 +202,24 @@ class Runner {
 
     // Task instance must extend from Task
     if (!task || task.__proto__.constructor.__proto__.name !== 'Task') {
-      throw { error: 'Exported class must extend from "Task"' };
+      throw {
+        error: 'Exported class must extend from "Task"'
+      };
     }
 
     if (!checker.hasMethod(task, method_name)) {
-      throw { error: `Method (${method_name}) was not found in Task: ${task.name}` };
+      throw {
+        error: `Method (${method_name}) was not found in Task: ${task.name}`
+      };
     }
 
     task.emit('setup:start', {});
 
-    task.robot.delegateLocal = (...args) => this.sendAndAwaitForResponse(this.jsonrpc.rpiecy.createRequest('delegate-local', args, this.jsonrpc.rpiecy.id()), task);
-
-    task.robot.delegateRemote = (...args) => this.sendAndAwaitForResponse(this.jsonrpc.rpiecy.createRequest('delegate-remote', args, this.jsonrpc.rpiecy.id()), task);
-
+    task.robot.delegateLocal = (...args) => this.delegate('local', args[0], args[1], args[2], task);
+    task.robot.delegateRemote = (...args) => this.delegate('remote', args[0], args[1], args[2], task);
     task.logger.task_name = task.name;
-    task.emit('setup:end', {});
 
+    task.emit('setup:end', {});
 
     if (typeof task.warmup === 'function' && !task._hasDoneWarmup()) {
       task.emit('warmup:start', {});
@@ -227,29 +242,52 @@ class Runner {
           task.emit('finish', {});
         } catch (error) {
           task.logger.error('There has been an error cooling down: ' + error.stack);
-          task.emit('error', { error });
+          task.emit('error', {
+            error
+          });
         }
       }, COOLDOWN_TIMEOUT);
     }
 
     if (method_name === 'warmup') {
-      return new Promise((res) => { });
+      return new Promise((res) => {});
     } else {
-      task.emit('run-method', { method_name, input });
+      task.emit('run-method', {
+        method_name,
+        input
+      });
 
       return await task[method_name](input)
         .then((result) => {
-          let execution_time = subroutines.reduce((curr, prev) => ({ exec_time: prev.exec_time + curr.exec_time }), { exec_time: 0 }).exec_time / 1000;
+          let execution_time = subroutines.reduce((curr, prev) => ({
+            exec_time: prev.exec_time + curr.exec_time
+          }), {
+            exec_time: 0
+          }).exec_time / 1000;
 
-          return { result, execution_time, subroutines };
+          return {
+            result,
+            execution_time,
+            subroutines
+          };
         })
         .catch((err) => task.emit('error', err));
     }
   }
 
+  delegate(routing, target, routine, args, task) {
+    return this.sendAndAwaitForResponse(this.jsonrpc.rpiecy
+      .createRequest('delegate', {
+        routing,
+        routine,
+        target,
+        args
+      }, this.jsonrpc.rpiecy.id()), task);
+  }
+
   sendAndAwaitForResponse(request, task) {
     task.logger.info(`Task ${task.id} is listening for: response:` + request.id);
-
+    
     return request.sendAndAwait().then((resp) => resp.result);
   }
 }

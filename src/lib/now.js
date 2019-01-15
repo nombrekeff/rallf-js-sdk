@@ -57,7 +57,6 @@ now.timeFnExecutionAsync = async (fn, args) => {
 
   let duration_millis = (diff[0] * 1e9 + diff[1]) / 1000000;
 
-
   return {
     timed: {
       start_time,

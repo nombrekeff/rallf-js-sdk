@@ -27,17 +27,16 @@ class Devices {
     try {
       let device = this.devices[device_name];
 
+      if (!device) {
+        throw new Error('\n\nDevice not found: ' + device_name + ' - robot does not have that devices defined \n   > Check out this doc for more info: https://github.com/RobotUnion/rallf-js-sdk/wiki/Robot-Devices\n\n');
+      }
+
       // Quick hack to support already existing devices
       // New devices should set a .name proerty instead of .device
       if (!device.name) {
         device.name = device.device;
       }
 
-      // console.log("Getting device: ", device);
-
-      if (!device) {
-        throw new Error('Device not found: ' + device_name + ' - robot does not have that devices defined');
-      }
       if (device.kind === 'driver') {
         return new Promise(async (resolve, reject) => {
           let builder = new Builder().forBrowser(device.name);
@@ -169,7 +168,7 @@ class Devices {
     // console.log('opts', opts)
 
     opts.device_name = deviceName;
-    
+
     return opts;
   }
 

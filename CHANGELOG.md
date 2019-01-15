@@ -1,4 +1,8 @@
 
+## v0.7.0
+* Changed rpc comunication standard to match https://github.com/QbitArtifacts/rallf-doc/blob/master/tech/developers/sdk/specification.md
+
+
 ## v0.6.0
 * Fixed commands not working on MacOSx
 * Fixed Devices.get() threw error if device.name not defined

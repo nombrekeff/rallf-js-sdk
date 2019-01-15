@@ -8,11 +8,18 @@ module.exports = {
     process.stdout.write(str + '\n');
   },
   rpcLogger(str) {
-    let log = { message: str, data: {}, channel: 'runner.js', severity: 6 };
-    let notif = jsonrpc.rpiecy.createRequest('log', log);
+    let log = {
+      name: 'log',
+      context: 'runner.js',
+      content: {
+        message: str,
+        data: {},
+        channel: 'runner.js',
+        severity: 6
+      }
+    };
+    let notif = jsonrpc.rpiecy.createRequest('event', log);
     notif.output();
-    // let request = jsonrpc.request('log', { message: str, data: {}, channel: 'runner.js', severity: 6 });
-    // process.stdout.write(request.toString() + '\n');
   },
   logger(str) {
     process.stdout.write(str + '\n');
@@ -23,11 +30,16 @@ module.exports = {
   getClFromType(type) {
     if (!this.color) return (str) => str;
     switch (type) {
-      case 'error': return clc.bgRedBright;
-      case 'info': return clc.bgBlueBright;
-      case 'success': return clc.bgGreenBright;
-      case 'warn': return clc.bgYellowBright;
-      default: return clc.blackBright;
+      case 'error':
+        return clc.bgRedBright;
+      case 'info':
+        return clc.bgBlueBright;
+      case 'success':
+        return clc.bgGreenBright;
+      case 'warn':
+        return clc.bgYellowBright;
+      default:
+        return clc.blackBright;
     }
   },
 
